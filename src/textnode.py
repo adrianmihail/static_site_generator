@@ -1,10 +1,10 @@
 from enum import Enum
 
 class TextType(Enum):
-    TEXT_PLAIN = "text"
-    TEXT_BOLD = "bold"
-    TEXT_ITALIC = "italic"
-    TEXT_CODE = "code"
+    PLAIN = "text"
+    BOLD = "bold"
+    ITALIC = "italic"
+    CODE = "code"
     LINK = "link"
     IMAGE = "image"
 
