@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from convert_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from convert_markdown import *
 
 
 class TestTextNode(unittest.TestCase):
@@ -56,5 +56,24 @@ class TestTextNode(unittest.TestCase):
         #self.assertEqual(extract_markdown_images(text1), [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")])
         #self.assertEqual(extract_markdown_links(text2), [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")])
 
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode(
+                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+    )
+    
 if __name__ == "__main__":
     unittest.main()

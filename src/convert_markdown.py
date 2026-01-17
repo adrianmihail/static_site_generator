@@ -26,6 +26,65 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
     return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)",text)
 
-text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
-print(extract_markdown_links(text))
-# [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+
+def split_nodes_image(old_nodes):
+    new_list = []
+    
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_list.append(old_node)
+        else:
+            images = extract_markdown_images(old_node.text)
+            remaining_text = old_node.text
+
+            for image in images:
+                image_markdown = f"![{image[0]}]({image[1]})"
+                before, after = remaining_text.split(image_markdown,1)
+                if before != "":
+                    new_list.append(TextNode(before, TextType.TEXT))
+                
+                new_list.append(TextNode(image[0],TextType.IMAGE,image[1]))
+                remaining_text = after
+            
+            if remaining_text != "":
+                new_list.append(TextNode(remaining_text,TextType.TEXT))
+
+
+    return new_list
+
+def split_nodes_link(old_nodes):
+    new_list = []
+    
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_list.append(old_node)
+        else:
+            links = extract_markdown_links(old_node.text)
+            remaining_text = old_node.text
+
+            for link in links:
+                image_markdown = f"[{link[0]}]({link[1]})"
+                before, after = remaining_text.split(image_markdown,1)
+                if before != "":
+                    new_list.append(TextNode(before, TextType.TEXT))
+                
+                new_list.append(TextNode(link[0],TextType.LINK,link[1]))
+                remaining_text = after
+            
+            if remaining_text != "":
+                new_list.append(TextNode(remaining_text,TextType.TEXT))
+
+
+    return new_list
+
+
+def text_to_textnodes(text):
+    new_text = text
+
+    new_text = split_nodes_delimiter(new_text,"`",TextType.CODE)
+    new_text = split_nodes_delimiter(new_text,"**",TextType.BOLD)
+    new_text = split_nodes_delimiter(new_text,"_",TextType.ITALIC)
+    new_text = split_nodes_image(new_text)
+    new_text = split_nodes_link(new_text)
+
+    return new_text
