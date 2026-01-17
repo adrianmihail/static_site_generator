@@ -1,5 +1,6 @@
 from textnode import TextNode, TextType
 import re
+from markdown_blocks import *
 
 def split_nodes_delimiter(old_nodes,delimiter,text_type):
     new_list = []
@@ -79,7 +80,7 @@ def split_nodes_link(old_nodes):
 
 
 def text_to_textnodes(text):
-    new_text = text
+    new_text = [TextNode(text, TextType.TEXT)]
 
     new_text = split_nodes_delimiter(new_text,"`",TextType.CODE)
     new_text = split_nodes_delimiter(new_text,"**",TextType.BOLD)
@@ -89,26 +90,7 @@ def text_to_textnodes(text):
 
     return new_text
 
-def markdown_to_blocks(markdown):
-    blocks = []
 
-    split_pieces = markdown.split("\n\n")
 
-    for block in split_pieces:
-        stripped = block.strip()
-        if stripped != "":
-            blocks.append(stripped)
-    
-    return blocks
 
-md = """
-This is **bolded** paragraph
 
-This is another paragraph with _italic_ text and `code` here
-This is the same paragraph on a new line
-
-- This is a list
-- with items
-"""
-
-print(markdown_to_blocks(md))

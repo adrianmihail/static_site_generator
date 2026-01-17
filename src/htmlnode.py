@@ -6,7 +6,19 @@ class HTMLNode:
         self.props = props
     
     def to_html(self):
-        raise NotImplementedError
+        if self.tag is None:
+            return self.value
+
+        attrs = ""
+        if self.props:
+            attrs = "".join(f' {k}="{v}"' for k, v in self.props.items())
+
+        if self.children:
+            inner = "".join(child.to_html() for child in self.children)
+        else:
+            inner = self.value or ""
+
+        return f"<{self.tag}{attrs}>{inner}</{self.tag}>"
 
     def props_to_html(self):
         if self.props == "" or self.props is None:
@@ -29,19 +41,23 @@ class LeafNode(HTMLNode):
           self.props = props
     
     def to_html(self):
+        # plain text node: no tag, just value
+        if self.tag is None:
+            return self.value or ""
+
         if self.value is None:
-            raise ValueError
-        elif self.value is None or self.value == "":
-            return self.value
-        elif self.props != None:
-            props_keys = list(self.props.keys())
-            string = f"<{self.tag}"
-            for key in props_keys:
-                string += f' {key}="{self.props[key]}"'
-            string += f'>{self.value}</{self.tag}>'
-            return string
-        else:
-            return f"<{self.tag}>{self.value}</{self.tag}>"
+            raise ValueError("LeafNode with tag must have value")
+
+        # props should be a dict or None; reuse props_to_html
+        attrs = ""
+        if self.props:
+            if isinstance(self.props, dict):
+                attrs = "".join(f' {k}="{v}"' for k, v in self.props.items())
+            else:
+                # if older code passed a prebuilt string, just prepend a space
+                attrs = " " + str(self.props)
+
+        return f"<{self.tag}{attrs}>{self.value}</{self.tag}>"
 
 
     def __repr__(self):

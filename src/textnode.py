@@ -41,8 +41,6 @@ def text_node_to_html_node(text_node):
             props = f'href="{text_node.url}"'
             return LeafNode("a",text_node.text,props)
         case TextType.IMAGE:
-            props = {"src":text_node.url, "alt":text_node.text}
-            string = ""
-            for key in props:
-                string += f'{key}="{props[key]}" '
-            return LeafNode("img",None,string)
+            props = f'src="{text_node.url}" alt="{text_node.text}" '
+            # value is usually irrelevant for <img>, but tests compare props
+            return LeafNode("img", "", props)
